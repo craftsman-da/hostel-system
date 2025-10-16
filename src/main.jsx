@@ -4,7 +4,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App.jsx';
 import RegistrationPage from './components/RegistrationPage.jsx';
-import VerificationPage from './components/VerificationPAge.jsx';
+import VerificationPage from './components/VerificationPage.jsx';
 import RoomSelectionPage from './components/RoomSelectionPage.jsx';
 import ConfirmationPage from './components/ConfirmationPage.jsx';
 import PaymentPage from './components/PaymentPage.jsx';
