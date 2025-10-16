@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 
 export class AxiosReqHandlers {
   static basePath = 'https://hostel-alloc-backend.onrender.com/api';

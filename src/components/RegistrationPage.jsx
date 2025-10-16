@@ -1,17 +1,78 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useSignup } from '../hooks/UseSignup';
+
+const registrationSchema = z.object({
+  fullname: z
+    .string()
+    .min(3, "Full name must be at least 3 characters")
+    .max(50, "Full name cannot exceed 50 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Full name should contain only letters and spaces"),
+
+    app_id: z
+      .string()
+      .min(3, "Application ID is required")
+      .regex(
+        /^APP-\d{4}-\d+$/,
+        "Application ID must follow the format 'APP-YYYY-XXXXX' (e.g., APP-2025-70792)"
+      ),
+
+  program: z
+    .string()
+    .min(2, "Program name is required")
+    .max(100, "Program name is too long"),
+
+  email: z
+    .string()
+    .email("Please enter a valid email address")
+    .min(5, "Email address is required"),
+
+  level: z
+    .string()
+    .refine(
+      (val) => 
+        ["fundamental", "advanced"].includes(val.toLowerCase()),
+      "Program level must be either 'Fundamental' or 'Advanced'"
+    ),
+
+  gender: z
+    .string()
+    .refine(
+      (val) => 
+        ["male", "female"].includes(val.toLowerCase()),
+      "Gender must be either 'Male' or 'Female'"
+    ),
+});
+
+
 
 const RegistrationPage = () => {
-  const [formData, setFormData] = useState({
-    fullname: '',
-    app_id: '',
-    program: '',
-    email: '',
-    level: '',
-    gender: '',
-  });
   const navigate = useNavigate();
-
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
+      fullname: '',
+      appID: '',
+      program: '',
+      email: '',
+      programLevel: '',
+      gender: '',
+    }
+  });
+const { signupFn} = useSignup()
+  const onSubmit = (data) => {
+    signupFn(data);
+     console.log(data);
+    
+  };
+console.log(errors)
   const styles = {
     body: {
       background: 'linear-gradient(to right, #1e3a8a, #3b82f6)',
@@ -97,20 +158,52 @@ const RegistrationPage = () => {
         textDecoration: 'underline',
       },
     },
+    errorText: {
+      color: '#ffb4b4',
+      fontSize: '12px',
+      marginTop: '5px',
+    }
   };
+  
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-    // Add your registration logic here
-  };
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const formFields = [
+    {
+      id: 'fullname',
+      label: 'Full Name',
+      type: 'text',
+      placeholder: 'Enter your full name',
+    },
+    {
+      id: 'app_id',
+      label: 'Application ID',
+      type: 'text',
+      placeholder: 'Enter your APP number',
+    },
+    {
+      id: 'program',
+      label: 'Program Enrolled',
+      type: 'text',
+      placeholder: 'Enter your Program Course',
+    },
+    {
+      id: 'email',
+      label: 'Email Address',
+      type: 'email',
+      placeholder: 'Enter your email',
+    },
+    {
+      id: 'level',
+      label: 'Program Level',
+      type: 'text',
+      placeholder: 'Fundamental or Advanced',
+    },
+    {
+      id: 'gender',
+      label: 'Gender',
+      type: 'text',
+      placeholder: 'Male or female',
+    },
+  ];
 
   return (
     <div style={styles.body}>
@@ -122,45 +215,8 @@ const RegistrationPage = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          {[
-            {
-              id: 'fullname',
-              label: 'Full Name',
-              type: 'text',
-              placeholder: 'Enter your full name',
-            },
-            {
-              id: 'app_id',
-              label: 'Application ID',
-              type: 'text',
-              placeholder: 'Enter your APP number',
-            },
-            {
-              id: 'program',
-              label: 'Program Enrolled',
-              type: 'text',
-              placeholder: 'Enter your Program Course',
-            },
-            {
-              id: 'email',
-              label: 'Email Address',
-              type: 'email',
-              placeholder: 'Enter your email',
-            },
-            {
-              id: 'level',
-              label: 'Program Level',
-              type: 'text',
-              placeholder: 'Fundamental or Advanced',
-            },
-            {
-              id: 'gender',
-              label: 'Gender',
-              type: 'text',
-              placeholder: 'Male or female',
-            },
-          ].map((field) => (
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {formFields.map((field) => (
             <div key={field.id} style={styles.formGroup}>
               <label htmlFor={field.id} style={styles.label}>
                 {field.label}
@@ -168,17 +224,20 @@ const RegistrationPage = () => {
               <input
                 type={field.type}
                 id={field.id}
-                name={field.id}
                 placeholder={field.placeholder}
-                value={formData[field.id]}
-                onChange={handleChange}
-                required
+                {...register(field.id)}
                 style={styles.input}
               />
+              {errors[field.id ] && (
+                <p style={styles.errorText}>
+                  {errors[field.id]?.message}
+                </p>
+              )}
             </div>
           ))}
-
-          <button type='submit' style={styles.button}>
+            
+            
+          <button type="submit" style={styles.button}>
             Submit
           </button>
         </form>
