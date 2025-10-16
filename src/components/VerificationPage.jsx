@@ -1,12 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { User, KeyRound } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
-const VerificationPage = ({
-  appId = '',
-  setAppId = () => {},
-  handleVerify = () => {},
-}) => {
+const VerificationPage = () => {
+  const [appId, setAppId] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  // Define Zod schema for APP ID
+  const appIdSchema = z
+    .string()
+    .min(1, 'Application ID is required')
+    .regex(
+      /^APP-\d{4}-\d+$/,
+      "Application ID must follow the format 'APP-YYYY-XXXXX' (e.g., APP-2025-70792)"
+    );
+
+  const handleVerify = () => {
+    try {
+      // Validate the AppID using Zod
+      appIdSchema.parse(appId);
+      setError('');
+
+      // If validation passes, navigate to rooms
+      navigate('/rooms');
+    } catch (validationError) {
+      // If Zod validation fails, show the error message
+      if (validationError instanceof z.ZodError) {
+        setError(validationError.errors[0].message);
+      } else {
+        setError('Invalid Application ID');
+      }
+    }
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleVerify();
@@ -45,28 +73,32 @@ const VerificationPage = ({
                 onChange={(e) => setAppId(e.target.value.toUpperCase())}
                 onKeyPress={handleKeyPress}
                 placeholder='APP-2025-70720'
-                className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl
-                  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:outline-none
-                  transition-colors placeholder:text-gray-400'
+                className={`w-full pl-12 pr-4 py-3 border-2 ${
+                  error ? 'border-red-300' : 'border-gray-200'
+                } rounded-xl
+                  focus:ring-1 focus:outline-none
+                  transition-colors placeholder:text-gray-400`}
               />
             </div>
-            <div className='flex items-center gap-2 mt-2'>
-              <p className='text-xs text-gray-500'>Format: APP-YYYY-XXXXX</p>
-              <div className='flex-grow border-t border-gray-200'></div>
-            </div>
+            {error ? (
+              <p className='text-xs text-red-500 mt-2'>{error}</p>
+            ) : (
+              <div className='flex items-center gap-2 mt-2'>
+                <p className='text-xs text-gray-500'>Format: APP-YYYY-XXXXX</p>
+                <div className='flex-grow border-t border-gray-200'></div>
+              </div>
+            )}
           </div>
 
           {/* Action Button */}
-          <Link to={'/rooms'}>
-            <button
-              onClick={handleVerify}
-              className='w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white 
-              py-4 rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-700 
-              transition-all shadow-lg active:scale-98 flex items-center justify-center gap-2'
-            >
-              <span>Verify & Continue</span>
-            </button>
-          </Link>
+          <button
+            onClick={handleVerify}
+            className='w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white 
+            py-4 rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-700 
+            transition-all shadow-lg active:scale-98 flex items-center justify-center gap-2'
+          >
+            <span>Verify & Continue</span>
+          </button>
         </div>
       </div>
     </div>

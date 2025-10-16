@@ -16,7 +16,7 @@ const RoomSelectionPage = () => {
     name: 'Sir. Patrick',
     appId: 'APP-2025-19707',
     program: 'Cyber Security',
-    level: 'Advanced Level',
+    level: 'Advanced',
     gender: 'Male',
   };
 
@@ -81,7 +81,7 @@ const RoomSelectionPage = () => {
                 {studentInfo.program}
               </span>
               <span className='text-sm px-3 py-1 bg-amber-100 text-amber-700 rounded-full'>
-                Level {studentInfo.level}
+                Level: {studentInfo.level}
               </span>
               <span
                 className={`text-sm px-3 py-1 rounded-full ${
