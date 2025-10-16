@@ -8,53 +8,40 @@ import { useSignup } from '../hooks/UseSignup';
 const registrationSchema = z.object({
   fullname: z
     .string()
-    .min(3, "Full name must be at least 3 characters")
-    .max(50, "Full name cannot exceed 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Full name should contain only letters and spaces"),
+    .min(3, 'Full name must be at least 3 characters')
+    .max(50, 'Full name cannot exceed 50 characters')
+    .regex(/^[a-zA-Z\s]+$/, 'Full name should contain only letters and spaces')
+    .refine(
+      (val) => val.trim().split(/\s+/).length >= 2,
+      'Please enter both first name and last name'
+    ),
 
-    app_id: z
-      .string()
-      .min(3, "Application ID is required")
-      .regex(
-        /^APP-\d{4}-\d+$/,
-        "Application ID must follow the format 'APP-YYYY-XXXXX' (e.g., APP-2025-70792)"
-      ),
-
-  program: z
+  appID: z
     .string()
-    .min(2, "Program name is required")
-    .max(100, "Program name is too long"),
+    .min(3, 'Application ID is required')
+    .regex(
+      /^APP-\d{4}-\d+$/,
+      "Application ID must follow the format 'APP-YYYY-XXXXX' (e.g., APP-2025-70792)"
+    ),
+
+  program: z.string().min(2, 'Program name is required'),
 
   email: z
     .string()
-    .email("Please enter a valid email address")
-    .min(5, "Email address is required"),
+    .email('Please enter a valid email address')
+    .min(5, 'Email address is required'),
 
-  level: z
-    .string()
-    .refine(
-      (val) => 
-        ["fundamental", "advanced"].includes(val.toLowerCase()),
-      "Program level must be either 'Fundamental' or 'Advanced'"
-    ),
+  programLevel: z.string().min(1, 'Program level is required'),
 
-  gender: z
-    .string()
-    .refine(
-      (val) => 
-        ["male", "female"].includes(val.toLowerCase()),
-      "Gender must be either 'Male' or 'Female'"
-    ),
+  gender: z.string().min(1, 'Gender is required'),
 });
-
-
 
 const RegistrationPage = () => {
   const navigate = useNavigate();
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -64,15 +51,28 @@ const RegistrationPage = () => {
       email: '',
       programLevel: '',
       gender: '',
-    }
+    },
   });
-const { signupFn} = useSignup()
+  const { signupFn } = useSignup();
+
   const onSubmit = (data) => {
-    signupFn(data);
-     console.log(data);
-    
+    const nameParts = data.fullname.trim().split(/\s+/);
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    const backendData = {
+      firstName,
+      lastName,
+      appID: data.appID,
+      email: data.email,
+      gender: data.gender.toLowerCase(),
+      program: data.program,
+      programLevel: data.programLevel.toLowerCase(),
+    };
+    signupFn(backendData);
+    console.log('Send Data', backendData);
   };
-console.log(errors)
+
   const styles = {
     body: {
       background: 'linear-gradient(to right, #1e3a8a, #3b82f6)',
@@ -126,6 +126,18 @@ console.log(errors)
         backgroundColor: 'white',
       },
     },
+    select: {
+      width: '100%',
+      color: '#052aaa',
+      padding: '10px',
+      border: 'none',
+      borderRadius: '6px',
+      fontSize: '14px',
+      outline: 'none',
+      backgroundColor: 'rgba(255, 255, 255, 0.85)',
+      appearance: 'auto',
+      cursor: 'pointer',
+    },
     button: {
       width: '100%',
       padding: '12px',
@@ -162,46 +174,76 @@ console.log(errors)
       color: '#ffb4b4',
       fontSize: '12px',
       marginTop: '5px',
-    }
+    },
   };
-  
+
+  const programOptions = [
+    { value: '', label: 'Select a program' },
+    { value: 'Software Development', label: 'Software Development' },
+    { value: 'Cybersecurity', label: 'Cybersecurity' },
+    { value: 'Project Management', label: 'Project Management' },
+    { value: 'Call Center Attendant', label: 'Call Center Attendant' },
+    { value: 'BPO', label: 'BPO' },
+    { value: 'Emerging Technologies', label: 'Emerging Technologies' },
+  ];
+
+  const programLevelOptions = [
+    { value: '', label: 'Select a level' },
+    { value: 'Fundamental', label: 'Fundamental' },
+    { value: 'Advanced', label: 'Advanced' },
+  ];
+
+  const genderOptions = [
+    { value: '', label: 'Select gender' },
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' },
+  ];
 
   const formFields = [
     {
       id: 'fullname',
       label: 'Full Name',
       type: 'text',
-      placeholder: 'Enter your full name',
+      placeholder: 'Enter your first and last name',
+      component: 'input',
     },
     {
-      id: 'app_id',
+      id: 'appID',
       label: 'Application ID',
       type: 'text',
-      placeholder: 'Enter your APP number',
+      placeholder: 'Enter your APP number (e.g., APP-2025-70792)',
+      component: 'input',
     },
     {
       id: 'program',
       label: 'Program Enrolled',
-      type: 'text',
-      placeholder: 'Enter your Program Course',
+      type: 'select',
+      placeholder: '',
+      options: programOptions,
+      component: 'select',
     },
     {
       id: 'email',
       label: 'Email Address',
       type: 'email',
       placeholder: 'Enter your email',
+      component: 'input',
     },
     {
-      id: 'level',
+      id: 'programLevel',
       label: 'Program Level',
-      type: 'text',
-      placeholder: 'Fundamental or Advanced',
+      type: 'select',
+      placeholder: '',
+      options: programLevelOptions,
+      component: 'select',
     },
     {
       id: 'gender',
       label: 'Gender',
-      type: 'text',
-      placeholder: 'Male or female',
+      type: 'select',
+      placeholder: '',
+      options: genderOptions,
+      component: 'select',
     },
   ];
 
@@ -221,23 +263,36 @@ console.log(errors)
               <label htmlFor={field.id} style={styles.label}>
                 {field.label}
               </label>
-              <input
-                type={field.type}
-                id={field.id}
-                placeholder={field.placeholder}
-                {...register(field.id)}
-                style={styles.input}
-              />
-              {errors[field.id ] && (
-                <p style={styles.errorText}>
-                  {errors[field.id]?.message}
-                </p>
+
+              {field.component === 'input' ? (
+                <input
+                  type={field.type}
+                  id={field.id}
+                  placeholder={field.placeholder}
+                  {...register(field.id)}
+                  style={styles.input}
+                />
+              ) : (
+                <select
+                  id={field.id}
+                  {...register(field.id)}
+                  style={styles.select}
+                >
+                  {field.options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {errors[field.id] && (
+                <p style={styles.errorText}>{errors[field.id]?.message}</p>
               )}
             </div>
           ))}
-            
-            
-          <button type="submit" style={styles.button}>
+
+          <button type='submit' style={styles.button}>
             Submit
           </button>
         </form>

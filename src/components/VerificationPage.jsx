@@ -21,9 +21,7 @@ const VerificationPage = ({
           <div className='w-20 h-20 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4'>
             <User className='w-10 h-10 text-cyan-600' />
           </div>
-          <h2 className='text-2xl font-bold text-blue-900 mb-2'>
-            Student Identity
-          </h2>
+          <h2 className='text-2xl font-bold text-blue-900 mb-2'>Find A Room</h2>
           <p className='text-gray-600'>Enter your Application ID to proceed</p>
         </div>
 

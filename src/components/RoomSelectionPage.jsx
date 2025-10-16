@@ -13,8 +13,8 @@ const RoomSelectionPage = () => {
   const navigate = useNavigate();
 
   const studentInfo = {
-    name: 'Mr. Patrick',
-    appId: 'STD001',
+    name: 'Sir. Patrick',
+    appId: 'APP-2025-19707',
     program: 'Cyber Security',
     level: 'Advanced Level',
     gender: 'Male',
@@ -26,7 +26,7 @@ const RoomSelectionPage = () => {
       block: 'Block A',
       capacity: 2,
       occupied: 1,
-      price: '40k/Month',
+      price: '10k/Week',
       gender: 'Male',
     },
     {
@@ -34,7 +34,7 @@ const RoomSelectionPage = () => {
       block: 'Block E',
       capacity: 2,
       occupied: 1,
-      price: '40k/Month',
+      price: '10k/Week',
       gender: 'Male',
     },
 
@@ -43,7 +43,7 @@ const RoomSelectionPage = () => {
       block: 'Block E',
       capacity: 2,
       occupied: 1,
-      price: '40k/Month',
+      price: '10k/Week',
       gender: 'Female',
     },
     {
@@ -51,7 +51,7 @@ const RoomSelectionPage = () => {
       block: 'Block E',
       capacity: 1,
       occupied: 0,
-      price: '40k/Month',
+      price: '10k/Week',
       gender: 'Female',
     },
     // Add more rooms as needed
